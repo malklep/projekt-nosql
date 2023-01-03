@@ -23,8 +23,24 @@ class MESSAGES:
     USER_UPDATED = {"code": USER_UPDATED_CODE, "description": "User updated"}
     USER_DELETED = {"code": USER_DELETED_CODE, "description": "User deleted"}
 
+    AT_LEAST_ONE_TAG_REQUIRED_CODE = 206
+    TAG_DELETED_CODE = 200
+    TAG_NOT_FOUND_CODE = 204
+
+    AT_LEAST_ONE_TAG_REQUIRED = {"code": AT_LEAST_ONE_TAG_REQUIRED_CODE, "description": "At least one tag required"}
+    TAG_DELETED = {"code": TAG_DELETED_CODE, "description": "Tag deleted"}
+    TAG_NOT_FOUND = {"code": TAG_NOT_FOUND_CODE, "description": "Tag not found"}
+
+    FILE_CREATED_CODE = 200
+    FILE_DELETED_CODE = 200
+    FILE_NOT_FOUND_CODE = 204
+
+    FILE_CREATED = {"code": FILE_CREATED_CODE, "description": "File created"}
+    FILE_DELETED = {"code": FILE_DELETED_CODE, "description": "File deleted"}
+    FILE_NOT_FOUND = {"code": FILE_NOT_FOUND_CODE, "description": "File not found"}
+
     @classmethod
-    def ok(cls, value, guard):
+    def ok(cls, value, guard=None):
         result = cls.OK.copy()
         result['value'] = value
         result['guard'] = guard
