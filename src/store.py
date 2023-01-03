@@ -1,13 +1,15 @@
 import uuid
 import json
+import os
 
 from constants import MESSAGES
 
 
 class Store:
 
-    def __init__(self):
+    def __init__(self, filename):
         self._store = {"__default__": {}}
+        self._filename = filename
         self._currentNamespace = None
 
     def createNamespace(self, namespace):
@@ -88,13 +90,14 @@ class Store:
             return MESSAGES.INCORRECT_KEY
 
     def save(self):
-        with open('db.json', 'w') as file:
+        with open(self._filename, 'w') as file:
             json.dump(self._store, file)
         return MESSAGES.OK
 
     def load(self):
-        with open('db.json') as file:
-            self._store = json.load(file)
+        if os.path.exists(self._filename):
+            with open(self._filename) as file:
+                self._store = json.load(file)
         return MESSAGES.OK
 
     def _checkNamespace(self, namespace):
@@ -108,5 +111,5 @@ class Store:
 
         return namespace
 
-    def _guardKVArgs(self, key, value):
+    def _guardKVArgs(self, key, _):
         return isinstance(key, str) and len(key) > 0
