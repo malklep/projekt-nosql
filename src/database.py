@@ -137,6 +137,28 @@ class Database:
                                 return MESSAGES.ok(f, tag_data['guard'])
                 return MESSAGES.FILE_NOT_FOUND
 
+    def get_files_by_tag(self, user_key: str, tags: list[str]):
+        '''
+            Zwraca wszystkie pliki spod podanego tagu dla użytkownika o podanym kluczu.
+            Jeżeli plik występuje pod kilkoma tagami, zwracany jest tylko raz.
+        '''
+
+        result = self.get_user(user_key)
+        if result['code'] == MESSAGES.USER_NOT_FOUND_CODE:
+            return MESSAGES.USER_NOT_FOUND
+        else:
+            if not tags:
+                return MESSAGES.AT_LEAST_ONE_TAG_REQUIRED
+
+            files = []
+            for tag in tags:
+                tag_data = self.get_tag(user_key, tag)
+                if tag_data['code'] == MESSAGES.OK_CODE:
+                    files.extend(tag_data['value'])
+
+            deduplicated_files = dict((v['id'], v) for v in files).values()
+            return MESSAGES.ok(list(deduplicated_files))
+
     def delete_file_from_tags(self, user_key: str, tags: list[str], filename: str):
         '''
             Usuwa plik o podanej nazwie z podanych tagów dla użytkownika o podanym kluczu.
