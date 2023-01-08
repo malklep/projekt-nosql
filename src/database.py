@@ -9,10 +9,19 @@ class Database:
         self._store.load()
 
     def drop_database(self):
+        '''
+            Usuwa wszystkie dane z bazy danych.
+        '''
+
         self._store = Store(self._store._filename)
         self._store.save()
 
     def create_user(self, document: dict, key: str):
+        '''
+            Tworzy nowego użytkownika.
+            Jeśli użytkownik o podanym kluczu już istnieje, zwraca odpowiedni komunikat.
+        '''
+
         result = self._store.get(key)
 
         if result['code'] == MESSAGES.OK_CODE:
@@ -27,6 +36,10 @@ class Database:
             return MESSAGES.USER_CREATED
 
     def get_user(self, key: str):
+        '''
+            Zwraca użytkownika o podanym kluczu jeżeli ten istnieje.
+        '''
+
         result = self._store.get(key, namespace='users')
         if result['code'] != MESSAGES.OK_CODE:
             return MESSAGES.USER_NOT_FOUND
@@ -34,6 +47,10 @@ class Database:
             return MESSAGES.ok(result['value'], result['guard'])
 
     def update_user(self, key: str, document: dict):
+        '''
+            Aktualizuje dane użytkownika o podanym kluczu.
+        '''
+
         result = self.get_user(key)
         if result['code'] == MESSAGES.USER_NOT_FOUND_CODE:
             return MESSAGES.USER_NOT_FOUND
@@ -48,6 +65,10 @@ class Database:
                 return MESSAGES.USER_UPDATED
 
     def delete_user(self, key: str):
+        '''
+            Usuwa użytkownika o podanym kluczu.
+        '''
+
         result = self.get_user(key)
         if result['code'] == MESSAGES.USER_NOT_FOUND_CODE:
             return MESSAGES.USER_NOT_FOUND
@@ -60,6 +81,11 @@ class Database:
                 return MESSAGES.USER_DELETED
 
     def create_file(self, user_key: str, tags: list[str], document: dict):
+        '''
+            Tworzy nowy plik dla użytkownika o podanym kluczu.
+            Plik zostaje zapisany pod każdym tagiem z podanej listy.
+        '''
+
         result = self.get_user(user_key)
         if result['code'] == MESSAGES.USER_NOT_FOUND_CODE:
             return MESSAGES.USER_NOT_FOUND
@@ -83,6 +109,12 @@ class Database:
             return MESSAGES.FILE_CREATED
 
     def get_file(self, user_key: str, filename: str, tag: str = None):
+        '''
+            Zwraca plik o podanej nazwie dla użytkownika o podanym kluczu.
+            Jeśli podano tag, zwraca plik tylko z tego tagu, w przeciwnym wypadku
+            zwraca pierwszy napotkany plik (spod dowolnego tagu).
+        '''
+
         result = self.get_user(user_key)
         if result['code'] == MESSAGES.USER_NOT_FOUND_CODE:
             return MESSAGES.USER_NOT_FOUND
@@ -106,6 +138,11 @@ class Database:
                 return MESSAGES.FILE_NOT_FOUND
 
     def delete_file_from_tags(self, user_key: str, tags: list[str], filename: str):
+        '''
+            Usuwa plik o podanej nazwie z podanych tagów dla użytkownika o podanym kluczu.
+            Jeżeli pod danym tagiem nie ma już żadnych plików, ten tag zostanie usunięty.
+        '''
+
         result = self.get_user(user_key)
         if result['code'] == MESSAGES.USER_NOT_FOUND_CODE:
             return MESSAGES.USER_NOT_FOUND
@@ -140,6 +177,10 @@ class Database:
             return deleting_result
 
     def get_tag(self, user_key: str, tag: str):
+        '''
+            Zwraca tag dla użytkownika o podanym kluczu.
+        '''
+
         result = self.get_user(user_key)
         if result['code'] == MESSAGES.USER_NOT_FOUND_CODE:
             return MESSAGES.USER_NOT_FOUND
@@ -152,6 +193,10 @@ class Database:
                 return MESSAGES.ok(result['value'], result['guard'])
 
     def get_tags(self, user_key: str):
+        '''
+            Zwraca listę tagów dla użytkownika o podanym kluczu.
+        '''
+
         result = self.get_user(user_key)
         if result['code'] == MESSAGES.USER_NOT_FOUND_CODE:
             return MESSAGES.USER_NOT_FOUND
@@ -161,11 +206,17 @@ class Database:
                 return MESSAGES.ok(tags)
 
             for key in self._store._store['files']:
-                if key.startswith(user_key):
-                    tags.append(key.split(':')[1])
+                key_data = key.split(':')
+                if key_data[0] == user_key:
+                    tags.append(key_data[1])
             return MESSAGES.ok(tags)
 
     def delete_tag(self, user_key: str, tag: str):
+        '''
+            Usuwa tag dla użytkownika o podanym kluczu.
+            Wraz z usuwanym tagiem, usuwane są wszystkie pliki z tego tagu.
+        '''
+
         result = self.get_user(user_key)
         if result['code'] == MESSAGES.USER_NOT_FOUND_CODE:
             return MESSAGES.USER_NOT_FOUND
