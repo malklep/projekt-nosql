@@ -22,7 +22,7 @@ class Database:
             Jeśli użytkownik o podanym kluczu już istnieje, zwraca odpowiedni komunikat.
         '''
 
-        result = self._store.get(key)
+        result = self._store.get(key, namespace='users')
 
         if result['code'] == MESSAGES.OK_CODE:
             return MESSAGES.USER_ALREADY_EXISTS
